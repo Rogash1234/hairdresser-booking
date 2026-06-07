@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://salonsapi.prooktatas.hu/api";
+const API_BASE_URL = "https://salonsapi.prooktatas.hu/api";
 
 async function getHairdressers() {
     try {
