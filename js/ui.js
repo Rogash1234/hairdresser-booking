@@ -71,6 +71,15 @@ function renderBookingForm() {
 }
 
 function goBack() {
+    const container = document.getElementById("hairdresser-section");
+
+    container.innerHTML = `
+        <h2>Fodrászaink</h2>
+        <div id="hairdresser-list" class="hairdresser-list">
+            <p>Fodrászok betöltése...</p>
+        </div>
+    `;
+
     initApp();
 }
 
@@ -129,13 +138,21 @@ function addBookingEvent() {
 
         const result = await createAppointment(appointmentData);
 
-        if (result) {
-            message.textContent = "Sikeres foglalás!";
-            message.style.color = "green";
-            form.reset();
-        } else {
-            message.textContent = "Hiba történt a foglalás mentésekor.";
-            message.style.color = "red";
-        }
+       if (result) {
+    renderSuccessMessage();
+} else {
+    message.textContent = "Hiba történt a foglalás mentésekor.";
+    message.style.color = "red";
+}
     });
+}
+
+function renderSuccessMessage() {
+    const container = document.getElementById("hairdresser-section");
+
+    container.innerHTML = `
+        <h2>Sikeres foglalás!</h2>
+        <p>Az időpontfoglalásod sikeresen rögzítésre került.</p>
+        <button onclick="goBack()">Vissza a fodrászokhoz</button>
+    `;
 }
