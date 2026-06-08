@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="hu">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Foglalások</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <header class="header">
+        <h1>Admin felület</h1>
+        <p>Foglalások áttekintése</p>
+    </header>
+
+    <main class="container">
+        <section>
+            <h2>Beérkezett foglalások</h2>
+            <label for="hairdresser-filter">Szűrés fodrász szerint:</label>
+            <select id="hairdresser-filter">
+                <option value="">Összes fodrász</option>
+            </select>
+            <br><br>
+            <div id="appointments-list">
+                <p>Foglalások betöltése...</p>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+
+</html>

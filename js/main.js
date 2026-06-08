@@ -4,3 +4,5 @@ async function initApp() {
 }
 
 initApp();
+
+let selectedHairdresser = null;
