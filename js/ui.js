@@ -1,3 +1,56 @@
+function validatePhone(phone) {
+    const phoneRegex = /^(\+36|06)(20|30|31|50|70)\d{7}$/;
+    return phoneRegex.test(phone.replace(/\s/g, ""));
+}
+
+function validateName(name) {
+    return name.trim().length >= 2;
+}
+
+const allowedServices = [
+    "Hajvágás",
+    "Szakáll igazítás",
+    "Hajfestés",
+    "Gyerek hajvágás"
+];
+
+function validateService(service) {
+    return allowedServices.includes(service);
+}
+
+function showError(messageElement, text) {
+    messageElement.textContent = text;
+    messageElement.style.color = "red";
+}
+
+function isPastAppointment(date, time) {
+    const selectedDateTime = new Date(`${date}T${time}`);
+    const now = new Date();
+
+    return selectedDateTime < now;
+}
+
+function createAppointmentData(name, phone, date, time, service) {
+    return {
+        hairdresser_id: selectedHairdresser,
+        api_key: API_KEY,
+        customer_name: name,
+        customer_phone: phone.replace(/\s/g, ""),
+        appointment_date: `${date} ${time}:00`,
+        service: service
+    };
+}
+
+function isAppointmentAlreadyBooked(appointments, date, time) {
+    const selectedAppointmentDate = `${date} ${time}:00`;
+
+    return appointments.some(appointment => {
+        return Number(appointment.hairdresser_id) === Number(selectedHairdresser)
+            && appointment.appointment_date === selectedAppointmentDate;
+    });
+}
+
+
 function renderHairdressers(hairdressers) {
     const hairdresserList = document.getElementById("hairdresser-list");
 
@@ -43,7 +96,9 @@ function renderBookingForm() {
             <input type="text" id="customer-name" required><br><br>
 
             <label>Telefonszám:</label><br>
-            <input type="text" id="customer-phone" required><br><br>
+           <input type="tel" id="customer-phone" placeholder="+36301234567" required>
+           <small>Formátum: +36301234567 vagy 06301234567</small>
+           <br><br>
 
             <label>Dátum:</label><br>
             <input type="date" id="appointment-date" required><br><br>
@@ -58,7 +113,14 @@ function renderBookingForm() {
             </select><br><br>
 
             <label>Szolgáltatás:</label><br>
-            <input type="text" id="service" required><br><br>
+            <select id="service" required>
+    <option value="">Válassz szolgáltatást</option>
+    <option value="Hajvágás">Hajvágás</option>
+    <option value="Szakáll igazítás">Szakáll igazítás</option>
+    <option value="Hajfestés">Hajfestés</option>
+    <option value="Gyerek hajvágás">Gyerek hajvágás</option>
+</select><br><br>
+
 
             <button type="submit">Foglalás</button>
         </form>
@@ -98,52 +160,44 @@ function addBookingEvent() {
         const message = document.getElementById("form-message");
 
         if (!name || !phone || !date || !time || !service) {
-            message.textContent = "Minden mező kitöltése kötelező.";
-            message.style.color = "red";
+            showError(message, "Minden mező kitöltése kötelező.");
             return;
         }
 
-        const selectedDateTime = new Date(`${date}T${time}`);
-        const now = new Date();
+        if (!validateName(name)) {
+            showError(message, "A név legalább 2 karakter hosszú legyen.");
+            return;
+        }
 
-        if (selectedDateTime < now) {
-            message.textContent = "Múltbeli időpontra nem lehet foglalni.";
-            message.style.color = "red";
+        if (!validatePhone(phone)) {
+            showError(message, "Adj meg érvényes magyar telefonszámot!");
+            return;
+        }
+
+        if (!validateService(service)) {
+            showError(message, "Csak a listából választható szolgáltatás foglalható.");
+            return;
+        }
+
+        if (isPastAppointment(date, time)) {
+            showError(message, "Múltbeli időpontra nem lehet foglalni.");
             return;
         }
 
         const appointments = await getAppointments();
-
-        const selectedAppointmentDate = `${date} ${time}:00`;
-
-        const isAlreadyBooked = appointments.some(appointment => {
-            return Number(appointment.hairdresser_id) === Number(selectedHairdresser)
-                && appointment.appointment_date === selectedAppointmentDate;
-        });
-
-        if (isAlreadyBooked) {
-            message.textContent = "Ez az időpont ennél a fodrásznál már foglalt.";
-            message.style.color = "red";
+        if (isAppointmentAlreadyBooked(appointments, date, time)) {
+            showError(message, "Ez az időpont ennél a fodrásznál már foglalt.");
             return;
         }
 
-        const appointmentData = {
-            hairdresser_id: selectedHairdresser,
-            api_key: API_KEY,
-            customer_name: name,
-            customer_phone: phone,
-            appointment_date: `${date} ${time}:00`,
-            service: service
-        };
-
+        const appointmentData = createAppointmentData(name, phone, date, time, service);
         const result = await createAppointment(appointmentData);
 
-       if (result) {
-    renderSuccessMessage();
-} else {
-    message.textContent = "Hiba történt a foglalás mentésekor.";
-    message.style.color = "red";
-}
+        if (result) {
+            renderSuccessMessage();
+        } else {
+            showError(message, "Hiba történt a foglalás mentésekor.");
+        }
     });
 }
 

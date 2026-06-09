@@ -19,7 +19,6 @@ async function getHairdressers() {
 const API_KEY = "test123";
 
 async function createAppointment(appointmentData) {
-    console.log("Küldött adat:", appointmentData);
 
     try {
         const response = await fetch(
@@ -34,8 +33,6 @@ async function createAppointment(appointmentData) {
         );
 
         const responseText = await response.text();
-        console.log("API státusz:", response.status);
-        console.log("API válasz:", responseText);
 
         if (!response.ok) {
             throw new Error("Nem sikerült létrehozni a foglalást.");

@@ -3,11 +3,18 @@ let allHairdressers = [];
 
 async function initAdmin() {
     allAppointments = await getAppointments();
+
+    allAppointments.sort((a, b) =>
+        new Date(a.appointment_date) - new Date(b.appointment_date)
+    );
+
     allHairdressers = await getHairdressers();
 
     renderHairdresserFilter(allHairdressers);
     renderAppointments(allAppointments, allHairdressers);
 }
+
+
 
 function renderHairdresserFilter(hairdressers) {
     const filter = document.getElementById("hairdresser-filter");
